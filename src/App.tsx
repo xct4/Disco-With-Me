@@ -18,7 +18,6 @@ import {
   Paperclip,
   Check,
   Image as ImageIcon,
-  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
@@ -58,7 +57,7 @@ const COLOR_PRESETS = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = React.useState("composer");
+  const [activeTab, setActiveTab] = React.useState("message");
   const [webhookUrl, setWebhookUrl] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [avatarUrl, setAvatarUrl] = React.useState("");
@@ -641,111 +640,92 @@ export default function App() {
   const currentEmbed = embeds[activeEmbedIdx];
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-foreground flex flex-col justify-between relative overflow-x-hidden">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(99,102,241,0.15),rgba(0,0,0,0))]" />
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between relative overflow-x-hidden">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 isolate contain-strict pointer-events-none overflow-hidden"
+      >
+        <div className="w-[560px] h-[1280px] -translate-y-[350px] absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(0,0%,85%,.08)_0,hsla(0,0%,55%,.02)_50%,hsla(0,0%,45%,0)_80%)]" />
+        <div className="h-[1280px] absolute left-0 top-0 w-[240px] -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
+        <div className="h-[1280px] -translate-y-[350px] absolute left-0 top-0 w-[240px] -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
+      </div>
 
-      <header className="border-b border-white/5 bg-[#0d0e15]/70 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl select-none">🕺</span>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                Disco With Me <span className="text-indigo-400 text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 font-mono">v2.0</span>
-              </h1>
-            </div>
-          </div>
+      <div className="mx-auto max-w-5xl py-8 relative px-4 sm:px-6 w-full flex-1">
+        <h1 className="text-3xl font-bold mb-6 text-center text-foreground tracking-tight">
+          Disco With Me
+        </h1>
 
-          <div className="flex items-center gap-2">
-            {webhookUrl.trim() && (
-              <span
-                className={`text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium border ${
-                  isValidUrl(webhookUrl)
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                    : "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                }`}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isValidUrl(webhookUrl) ? "bg-emerald-400" : "bg-rose-400"
-                  }`}
-                />
-                {isValidUrl(webhookUrl) ? "Webhook Connected" : "Invalid Webhook"}
-              </span>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-6 w-full flex-1 relative z-10">
         <Tabs
-          defaultValue="composer"
+          defaultValue="message"
           value={activeTab}
           onValueChange={setActiveTab}
-          className="w-full space-y-6"
+          className="w-full flex flex-col gap-2"
         >
-          <div className="flex justify-center">
-            <TabsList className="bg-[#131522] border border-white/10 p-1 rounded-xl h-11">
-              <TabsTrigger
-                value="composer"
-                className="rounded-lg px-5 data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-medium text-xs sm:text-sm flex items-center gap-2"
-              >
-                <Send className="w-4 h-4" /> Composer
-              </TabsTrigger>
-              <TabsTrigger
-                value="manager"
-                className="rounded-lg px-5 data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-medium text-xs sm:text-sm flex items-center gap-2"
-              >
-                <Sliders className="w-4 h-4" /> Manager
-              </TabsTrigger>
-              <TabsTrigger
-                value="webhooks"
-                className="rounded-lg px-5 data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-medium text-xs sm:text-sm flex items-center gap-2"
-              >
-                <Bookmark className="w-4 h-4" /> Webhooks
-              </TabsTrigger>
-              <TabsTrigger
-                value="history"
-                className="rounded-lg px-5 data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-medium text-xs sm:text-sm flex items-center gap-2"
-              >
-                <History className="w-4 h-4" /> History
-              </TabsTrigger>
-            </TabsList>
-          </div>
+          <TabsList className="text-muted-foreground h-9 items-center justify-center rounded-lg p-[3px] grid w-full grid-cols-4 bg-muted/80">
+            <TabsTrigger value="message" className="rounded-md">
+              Message
+            </TabsTrigger>
+            <TabsTrigger value="edit" className="rounded-md">
+              Edit
+            </TabsTrigger>
+            <TabsTrigger value="webhooks" className="rounded-md">
+              Webhooks
+            </TabsTrigger>
+            <TabsTrigger value="history" className="rounded-md">
+              History
+            </TabsTrigger>
+          </TabsList>
 
-          <TabsContent value="composer" className="space-y-6">
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+          <TabsContent value="message" className="space-y-4 mt-4">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base text-white flex items-center gap-2">
-                  <Send className="w-4 h-4 text-indigo-400" /> Webhook Target & Identity
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Send className="w-4 h-4" /> Webhook Configuration
                 </CardTitle>
                 <CardDescription>
-                  Configure your destination webhook URL and customize your bot identity.
+                  Enter your webhook URL and customize the sender
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="webhook-url" className="text-xs text-gray-300">
-                    Webhook URL
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="webhook-url">Webhook URL</Label>
+                    {webhookUrl.trim() && (
+                      <span
+                        className={`text-xs flex items-center gap-1 font-medium ${
+                          isValidUrl(webhookUrl)
+                            ? "text-emerald-500"
+                            : "text-rose-500"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isValidUrl(webhookUrl) ? "bg-emerald-500" : "bg-rose-500"
+                          }`}
+                        />
+                        {isValidUrl(webhookUrl) ? "Valid URL" : "Invalid URL"}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Input
                       id="webhook-url"
                       placeholder="https://discord.com/api/webhooks/..."
                       value={webhookUrl}
                       onChange={(e) => setWebhookUrl(e.target.value)}
-                      className="bg-[#0b0c14] border-white/10 text-white placeholder:text-gray-600"
+                      className="bg-background/80 h-9"
                     />
                     {savedWebhooks.length > 0 && (
                       <select
                         aria-label="Load Saved Webhook"
-                        className="bg-[#0b0c14] border border-white/10 rounded-md px-3 text-xs text-gray-200"
+                        className="bg-card border border-input rounded-md px-2 text-xs text-foreground h-9 max-w-[140px]"
                         onChange={(e) => {
                           if (e.target.value) setWebhookUrl(e.target.value);
                         }}
                         defaultValue=""
                       >
                         <option value="" disabled>
-                          Saved Webhooks
+                          Saved...
                         </option>
                         {savedWebhooks.map((sw) => (
                           <option key={sw.id} value={sw.url}>
@@ -757,49 +737,46 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="bot-username" className="text-xs text-gray-300">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div className="space-y-1.5 flex flex-col justify-end">
+                    <Label htmlFor="custom-username" className="h-5 flex items-center text-xs">
                       Custom Bot Name
                     </Label>
                     <Input
-                      id="bot-username"
+                      id="custom-username"
                       placeholder="Disco With Me"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="bg-[#0b0c14] border-white/10 text-white placeholder:text-gray-600"
+                      className="bg-background/80 h-9"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="avatar-url" className="text-xs text-gray-300">
-                        Avatar (URL or File)
-                      </Label>
+                  <div className="space-y-1.5 flex flex-col justify-end">
+                    <div className="h-5 flex items-center justify-between text-xs">
+                      <Label htmlFor="avatar-url">Avatar (URL or File)</Label>
                       {avatarUrl && (
                         <button
                           type="button"
                           onClick={() => setAvatarUrl("")}
-                          className="text-[10px] text-rose-400 hover:underline"
+                          className="text-[10px] text-destructive hover:underline"
                         >
-                          Reset
+                          Clear
                         </button>
                       )}
                     </div>
                     <div className="flex gap-2 items-center">
                       <Input
                         id="avatar-url"
-                        placeholder="https://... or choose local file"
+                        placeholder="https://example.com/avatar.png"
                         value={avatarUrl.startsWith("data:") ? "[Local Image File]" : avatarUrl}
                         onChange={(e) => setAvatarUrl(e.target.value)}
-                        className="bg-[#0b0c14] border-white/10 text-white placeholder:text-gray-600 text-xs"
+                        className="bg-background/80 h-9 text-xs flex-1"
                       />
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
                         onClick={() => avatarFileInputRef.current?.click()}
-                        className="border-white/10 shrink-0 text-xs flex items-center gap-1.5 bg-[#171926] hover:bg-[#202334]"
+                        className="h-9 px-3 shrink-0 text-xs flex items-center gap-1.5"
                       >
                         <ImageIcon className="w-3.5 h-3.5" /> File
                       </Button>
@@ -813,8 +790,8 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="thread-id" className="text-xs text-gray-300">
+                  <div className="space-y-1.5 flex flex-col justify-end">
+                    <Label htmlFor="thread-id" className="h-5 flex items-center text-xs">
                       Thread ID (Optional)
                     </Label>
                     <Input
@@ -822,22 +799,20 @@ export default function App() {
                       placeholder="123456789012345678"
                       value={threadId}
                       onChange={(e) => setThreadId(e.target.value)}
-                      className="bg-[#0b0c14] border-white/10 text-white placeholder:text-gray-600"
+                      className="bg-background/80 h-9"
                     />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader className="pb-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <CardTitle className="text-base text-white flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-indigo-400" /> Message Content
-                    </CardTitle>
+                    <CardTitle className="text-base">Message Content</CardTitle>
                     <CardDescription>
-                      Write any text or paste your content directly.
+                      Enter your message content with full markdown formatting
                     </CardDescription>
                   </div>
 
@@ -847,7 +822,7 @@ export default function App() {
                       size="sm"
                       variant="outline"
                       onClick={() => textImportRef.current?.click()}
-                      className="h-8 text-xs border-white/10 bg-[#171926] hover:bg-[#202334] flex items-center gap-1.5"
+                      className="h-7 text-xs flex items-center gap-1.5"
                     >
                       <Upload className="w-3.5 h-3.5" /> Import (.txt / .json)
                     </Button>
@@ -862,11 +837,11 @@ export default function App() {
                       size="sm"
                       variant="outline"
                       onClick={handleExportTextContent}
-                      className="h-8 text-xs border-white/10 bg-[#171926] hover:bg-[#202334] flex items-center gap-1.5"
+                      className="h-7 text-xs flex items-center gap-1.5"
                     >
                       <Download className="w-3.5 h-3.5" /> Export (.txt)
                     </Button>
-                    <span className="text-xs text-gray-400 font-mono pl-1">
+                    <span className="text-xs text-muted-foreground font-mono pl-1">
                       {content.length}/2000
                     </span>
                   </div>
@@ -878,7 +853,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="secondary"
-                    className="h-6 px-2 text-[11px] bg-[#1a1c2b] text-gray-300 hover:text-white"
+                    className="h-6 px-2 text-[11px]"
                     onClick={() => setContent((c) => c + "@everyone ")}
                   >
                     @everyone
@@ -887,7 +862,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="secondary"
-                    className="h-6 px-2 text-[11px] bg-[#1a1c2b] text-gray-300 hover:text-white"
+                    className="h-6 px-2 text-[11px]"
                     onClick={() => setContent((c) => c + "@here ")}
                   >
                     @here
@@ -896,7 +871,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] font-bold border-white/10"
+                    className="h-6 px-2 text-[11px] font-bold"
                     onClick={() => setContent((c) => c + "**Bold** ")}
                   >
                     B
@@ -905,7 +880,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] italic border-white/10"
+                    className="h-6 px-2 text-[11px] italic"
                     onClick={() => setContent((c) => c + "*Italic* ")}
                   >
                     I
@@ -914,7 +889,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] underline border-white/10"
+                    className="h-6 px-2 text-[11px] underline"
                     onClick={() => setContent((c) => c + "__Underline__ ")}
                   >
                     U
@@ -923,7 +898,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] line-through border-white/10"
+                    className="h-6 px-2 text-[11px] line-through"
                     onClick={() => setContent((c) => c + "~~Strike~~ ")}
                   >
                     S
@@ -932,7 +907,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] font-mono border-white/10"
+                    className="h-6 px-2 text-[11px] font-mono"
                     onClick={() => setContent((c) => c + "`code` ")}
                   >
                     Inline Code
@@ -941,7 +916,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] font-mono border-white/10"
+                    className="h-6 px-2 text-[11px] font-mono"
                     onClick={() => setContent((c) => c + "\n```\ncode block\n```\n")}
                   >
                     Code Block
@@ -950,7 +925,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] border-white/10"
+                    className="h-6 px-2 text-[11px]"
                     onClick={() => setContent((c) => c + "\n> Quote\n")}
                   >
                     Quote
@@ -959,7 +934,7 @@ export default function App() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-6 px-2 text-[11px] border-white/10"
+                    className="h-6 px-2 text-[11px]"
                     onClick={() => setContent((c) => c + "||Spoiler|| ")}
                   >
                     Spoiler
@@ -970,13 +945,13 @@ export default function App() {
                   placeholder="Enter your message here..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="min-h-[110px] bg-[#0b0c14] border-white/10 font-mono text-sm text-white placeholder:text-gray-600"
+                  className="min-h-[100px] bg-background/80 font-mono text-sm"
                   maxLength={2000}
                 />
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0b0c14] border border-white/5">
-                    <Label htmlFor="switch-tts" className="text-xs text-gray-300 cursor-pointer">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                  <div className="flex items-center justify-between p-2 rounded bg-muted/40 border border-border">
+                    <Label htmlFor="switch-tts" className="text-xs cursor-pointer">
                       Text to Speech (TTS)
                     </Label>
                     <Switch
@@ -985,8 +960,11 @@ export default function App() {
                       onCheckedChange={setTts}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0b0c14] border border-white/5">
-                    <Label htmlFor="switch-suppress-embeds" className="text-xs text-gray-300 cursor-pointer">
+                  <div className="flex items-center justify-between p-2 rounded bg-muted/40 border border-border">
+                    <Label
+                      htmlFor="switch-suppress-embeds"
+                      className="text-xs cursor-pointer"
+                    >
                       Suppress Embeds
                     </Label>
                     <Switch
@@ -995,9 +973,12 @@ export default function App() {
                       onCheckedChange={setSuppressEmbeds}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0b0c14] border border-white/5">
-                    <Label htmlFor="switch-notifications" className="text-xs text-gray-300 cursor-pointer">
-                      Silent Notification
+                  <div className="flex items-center justify-between p-2 rounded bg-muted/40 border border-border">
+                    <Label
+                      htmlFor="switch-notifications"
+                      className="text-xs cursor-pointer"
+                    >
+                      Silent Message
                     </Label>
                     <Switch
                       id="switch-notifications"
@@ -1009,22 +990,22 @@ export default function App() {
               </CardContent>
             </Card>
 
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base text-white flex items-center gap-2">
-                      <Paperclip className="w-4 h-4 text-indigo-400" /> Attachments
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Paperclip className="w-4 h-4" /> File Attachments
                     </CardTitle>
                     <CardDescription>
-                      Upload files or pictures directly with the webhook payload.
+                      Attach up to 10 files (images, logs, documents)
                     </CardDescription>
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
-                    className="h-8 text-xs border-white/10 bg-[#171926] hover:bg-[#202334] flex items-center gap-1.5"
+                    className="h-8 text-xs flex items-center gap-1.5"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add Files
                   </Button>
@@ -1043,18 +1024,18 @@ export default function App() {
                     {files.map((f, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2 bg-[#0b0c14] border border-white/10 px-3 py-1.5 rounded-md text-xs text-gray-300"
+                        className="flex items-center gap-2 bg-muted/60 border border-border px-3 py-1.5 rounded-md text-xs"
                       >
                         <span className="font-medium truncate max-w-[140px]">
                           {f.name}
                         </span>
-                        <span className="text-gray-500 text-[10px]">
+                        <span className="text-muted-foreground text-[10px]">
                           ({(f.size / 1024).toFixed(1)} KB)
                         </span>
                         <button
                           type="button"
                           onClick={() => removeFile(i)}
-                          className="text-gray-400 hover:text-rose-400"
+                          className="text-muted-foreground hover:text-destructive"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
@@ -1065,38 +1046,38 @@ export default function App() {
               )}
             </Card>
 
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base text-white flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-indigo-400" /> Rich Embeds
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Layers className="w-4 h-4" /> Embeds
                     </CardTitle>
                     <CardDescription>
-                      Create rich interactive embeds with titles, colors, fields, and media.
+                      Add rich embeds to your message
                     </CardDescription>
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={addEmbed}
-                    className="h-8 text-xs border-white/10 bg-[#171926] hover:bg-[#202334] flex items-center gap-1.5"
+                    className="h-8 text-xs flex items-center gap-1.5"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add Embed ({embeds.length}/10)
+                    <Plus className="w-3.5 h-3.5" /> Add Embed
                   </Button>
                 </div>
               </CardHeader>
 
               {embeds.length > 0 && (
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/10">
+                  <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-border">
                     {embeds.map((emb, idx) => (
                       <div
                         key={emb.id}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer text-xs font-medium transition-colors ${
+                        className={`flex items-center gap-1 px-3 py-1 rounded-md cursor-pointer text-xs font-medium transition-colors ${
                           activeEmbedIdx === idx
-                            ? "bg-indigo-600 text-white"
-                            : "bg-[#0b0c14] hover:bg-[#161826] text-gray-400 border border-white/5"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted hover:bg-muted/80 text-muted-foreground"
                         }`}
                         onClick={() => setActiveEmbedIdx(idx)}
                       >
@@ -1111,7 +1092,7 @@ export default function App() {
                             e.stopPropagation();
                             removeEmbed(idx);
                           }}
-                          className="ml-1 hover:text-rose-300"
+                          className="ml-1 hover:text-rose-400"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -1120,46 +1101,46 @@ export default function App() {
                   </div>
 
                   {currentEmbed && (
-                    <div className="space-y-4 pt-1">
+                    <div className="space-y-4 pt-2">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-300">Embed Title</Label>
+                          <Label>Embed Title</Label>
                           <Input
                             placeholder="Title"
                             value={currentEmbed.title || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("title", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-300">Title URL</Label>
+                          <Label>Title URL</Label>
                           <Input
                             placeholder="https://example.com"
                             value={currentEmbed.url || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("url", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-xs text-gray-300">Embed Description</Label>
+                        <Label>Embed Description</Label>
                         <Textarea
                           placeholder="Markdown description..."
                           value={currentEmbed.description || ""}
                           onChange={(e) =>
                             updateCurrentEmbed("description", e.target.value)
                           }
-                          className="bg-[#0b0c14] border-white/10 font-mono text-sm text-white"
+                          className="bg-background/80 font-mono text-sm"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-xs text-gray-300">Embed Border Color</Label>
+                        <Label>Embed Color</Label>
                         <div className="flex flex-wrap items-center gap-2">
                           <input
                             type="color"
@@ -1167,14 +1148,14 @@ export default function App() {
                             onChange={(e) =>
                               updateCurrentEmbed("color", e.target.value)
                             }
-                            className="w-8 h-8 rounded border border-white/10 cursor-pointer bg-transparent p-0"
+                            className="w-8 h-8 rounded border border-border cursor-pointer bg-transparent p-0"
                           />
                           <Input
                             value={currentEmbed.color || "#5865F2"}
                             onChange={(e) =>
                               updateCurrentEmbed("color", e.target.value)
                             }
-                            className="w-28 font-mono text-xs bg-[#0b0c14] border-white/10 text-white"
+                            className="w-28 font-mono text-xs bg-background/80"
                           />
                           <div className="flex flex-wrap gap-1">
                             {COLOR_PRESETS.map((p) => (
@@ -1186,79 +1167,79 @@ export default function App() {
                                 onClick={() =>
                                   updateCurrentEmbed("color", p.value)
                                 }
-                                className="w-5 h-5 rounded-full border border-white/20 hover:scale-110 transition-transform"
+                                className="w-5 h-5 rounded-full border border-border/60 hover:scale-110 transition-transform"
                               />
                             ))}
                           </div>
                         </div>
                       </div>
 
-                      <Separator className="bg-white/5" />
+                      <Separator />
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-300">Author Name</Label>
+                          <Label>Author Name</Label>
                           <Input
                             placeholder="Author Name"
                             value={currentEmbed.author || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("author", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-300">Author Icon URL</Label>
+                          <Label>Author Icon URL</Label>
                           <Input
                             placeholder="https://example.com/icon.png"
                             value={currentEmbed.authorIcon || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("authorIcon", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-300">Author Link URL</Label>
+                          <Label>Author URL</Label>
                           <Input
                             placeholder="https://example.com"
                             value={currentEmbed.authorUrl || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("authorUrl", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-300">Thumbnail URL</Label>
+                          <Label>Thumbnail URL</Label>
                           <Input
                             placeholder="https://example.com/thumbnail.png"
                             value={currentEmbed.thumbnail || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("thumbnail", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-300">Main Image URL</Label>
+                          <Label>Main Image URL</Label>
                           <Input
                             placeholder="https://example.com/image.png"
                             value={currentEmbed.image || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("image", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <Label className="text-xs text-gray-300 font-semibold">
+                          <Label className="text-sm font-semibold">
                             Embed Fields ({(currentEmbed.fields || []).length}/25)
                           </Label>
                           <Button
@@ -1266,7 +1247,7 @@ export default function App() {
                             size="sm"
                             variant="secondary"
                             onClick={addFieldToCurrentEmbed}
-                            className="h-7 text-xs bg-[#171926] text-gray-200 hover:text-white flex items-center gap-1"
+                            className="h-7 text-xs flex items-center gap-1"
                           >
                             <Plus className="w-3.5 h-3.5" /> Add Field
                           </Button>
@@ -1275,7 +1256,7 @@ export default function App() {
                         {(currentEmbed.fields || []).map((field) => (
                           <div
                             key={field.id}
-                            className="p-3 bg-[#0b0c14] rounded-lg border border-white/5 space-y-2"
+                            className="p-3 bg-muted/30 rounded-lg border border-border space-y-2"
                           >
                             <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                               <div className="sm:col-span-5">
@@ -1289,7 +1270,7 @@ export default function App() {
                                       e.target.value
                                     )
                                   }
-                                  className="h-8 text-xs bg-[#131522] border-white/10 text-white"
+                                  className="h-8 text-xs bg-background/80"
                                 />
                               </div>
                               <div className="sm:col-span-5">
@@ -1303,11 +1284,11 @@ export default function App() {
                                       e.target.value
                                     )
                                   }
-                                  className="h-8 text-xs bg-[#131522] border-white/10 text-white"
+                                  className="h-8 text-xs bg-background/80"
                                 />
                               </div>
                               <div className="sm:col-span-2 flex items-center justify-between sm:justify-end gap-2">
-                                <label className="flex items-center gap-1 text-[11px] text-gray-300 cursor-pointer">
+                                <label className="flex items-center gap-1 text-[11px] cursor-pointer">
                                   <input
                                     type="checkbox"
                                     checked={field.inline}
@@ -1327,7 +1308,7 @@ export default function App() {
                                   onClick={() =>
                                     removeFieldFromCurrentEmbed(field.id)
                                   }
-                                  className="text-gray-500 hover:text-rose-400"
+                                  className="text-muted-foreground hover:text-destructive"
                                 >
                                   <X className="w-3.5 h-3.5" />
                                 </button>
@@ -1337,29 +1318,29 @@ export default function App() {
                         ))}
                       </div>
 
-                      <Separator className="bg-white/5" />
+                      <Separator />
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="space-y-1.5 sm:col-span-1">
-                          <Label className="text-xs text-gray-300">Footer Text</Label>
+                          <Label>Footer Text</Label>
                           <Input
                             placeholder="Footer Text"
                             value={currentEmbed.footer || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("footer", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                         <div className="space-y-1.5 sm:col-span-1">
-                          <Label className="text-xs text-gray-300">Footer Icon URL</Label>
+                          <Label>Footer Icon URL</Label>
                           <Input
                             placeholder="https://example.com/footer-icon.png"
                             value={currentEmbed.footerIcon || ""}
                             onChange={(e) =>
                               updateCurrentEmbed("footerIcon", e.target.value)
                             }
-                            className="bg-[#0b0c14] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                         <div className="space-y-1.5 sm:col-span-1 flex flex-col justify-end">
@@ -1367,11 +1348,7 @@ export default function App() {
                             type="button"
                             variant={currentEmbed.timestamp ? "default" : "outline"}
                             size="sm"
-                            className={`h-9 text-xs flex items-center gap-1.5 ${
-                              currentEmbed.timestamp
-                                ? "bg-indigo-600 text-white"
-                                : "border-white/10 bg-[#0b0c14] text-gray-300"
-                            }`}
+                            className="h-9 text-xs flex items-center gap-1.5"
                             onClick={() =>
                               updateCurrentEmbed(
                                 "timestamp",
@@ -1394,13 +1371,13 @@ export default function App() {
               )}
             </Card>
 
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base text-white">Discord Native Poll</CardTitle>
+                    <CardTitle className="text-base">Poll</CardTitle>
                     <CardDescription>
-                      Create single or multi-choice polls directly in Discord.
+                      Create an interactive Discord poll
                     </CardDescription>
                   </div>
                   <Switch
@@ -1414,19 +1391,19 @@ export default function App() {
               {poll.enabled && (
                 <CardContent className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-gray-300">Poll Question</Label>
+                    <Label>Poll Question</Label>
                     <Input
-                      placeholder="What should we play next?"
+                      placeholder="Question"
                       value={poll.question}
                       onChange={(e) =>
                         setPoll((p) => ({ ...p, question: e.target.value }))
                       }
-                      className="bg-[#0b0c14] border-white/10 text-white"
+                      className="bg-background/80"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs text-gray-300">Poll Answers</Label>
+                    <Label>Poll Answers</Label>
                     {poll.answers.map((ans, idx) => (
                       <div key={ans.id} className="flex gap-2 items-center">
                         <Input
@@ -1441,13 +1418,13 @@ export default function App() {
                               ),
                             }));
                           }}
-                          className="bg-[#0b0c14] border-white/10 text-xs text-white"
+                          className="bg-background/80 text-xs"
                         />
                         {poll.answers.length > 2 && (
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-gray-500 hover:text-rose-400"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
                             onClick={() =>
                               setPoll((p) => ({
                                 ...p,
@@ -1474,7 +1451,7 @@ export default function App() {
                             ],
                           }))
                         }
-                        className="h-7 text-xs bg-[#171926] text-gray-200 hover:text-white flex items-center gap-1"
+                        className="h-7 text-xs flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" /> Add Option
                       </Button>
@@ -1483,7 +1460,7 @@ export default function App() {
 
                   <div className="flex flex-wrap gap-4 pt-1">
                     <div className="flex items-center gap-2">
-                      <Label className="text-xs text-gray-300">Allow Multiple Choices</Label>
+                      <Label className="text-xs">Allow Multiple Choices</Label>
                       <Switch
                         checked={poll.allowMultiselect}
                         onCheckedChange={(v) =>
@@ -1492,7 +1469,7 @@ export default function App() {
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <Label className="text-xs text-gray-300">Duration</Label>
+                      <Label className="text-xs">Duration</Label>
                       <select
                         aria-label="Poll Duration"
                         value={poll.duration}
@@ -1502,7 +1479,7 @@ export default function App() {
                             duration: Number(e.target.value),
                           }))
                         }
-                        className="bg-[#0b0c14] border border-white/10 rounded-md px-2 py-1 text-xs text-gray-200"
+                        className="bg-card border border-input rounded-md px-2 py-1 text-xs text-foreground"
                       >
                         <option value={1}>1 Hour</option>
                         <option value={4}>4 Hours</option>
@@ -1517,11 +1494,11 @@ export default function App() {
               )}
             </Card>
 
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base text-white">Live Discord Preview</CardTitle>
+                <CardTitle className="text-base">Preview</CardTitle>
                 <CardDescription>
-                  Accurate visual preview with Discord invite cards and markdown rendering.
+                  How your message will appear in Discord
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1536,15 +1513,15 @@ export default function App() {
               </CardContent>
             </Card>
 
-            <div className="p-4 bg-[#11131f]/90 rounded-2xl border border-white/10 flex flex-wrap items-center justify-between gap-4 sticky bottom-4 z-30 shadow-2xl backdrop-blur-md">
+            <div className="p-4 bg-card/60 backdrop-blur rounded-xl border border-border flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   onClick={handleSendMessage}
                   disabled={isSending || isSpamming}
-                  className="flex items-center gap-2 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/30"
+                  className="flex items-center gap-2 px-5 bg-primary text-primary-foreground font-semibold"
                 >
                   <Send className="w-4 h-4" />
-                  {isSending ? "Sending..." : "Send Message"}
+                  {isSending ? "Sending..." : "Send Webhook"}
                 </Button>
 
                 {isSpamming ? (
@@ -1559,23 +1536,23 @@ export default function App() {
                   <Button
                     onClick={startSpam}
                     variant="outline"
-                    className="flex items-center gap-2 border-white/10 bg-[#171926] hover:bg-[#202334]"
+                    className="flex items-center gap-2"
                   >
                     <Play className="w-4 h-4" /> Spam
                   </Button>
                 )}
 
                 <div className="flex items-center gap-1.5 ml-2">
-                  <span className="text-xs text-gray-400">Delay:</span>
+                  <span className="text-xs text-muted-foreground">Interval:</span>
                   <Input
                     type="number"
                     value={spamDelay}
                     onChange={(e) => setSpamDelay(Number(e.target.value) || 1000)}
-                    className="w-20 h-8 text-xs bg-[#0b0c14] border-white/10 text-white"
+                    className="w-20 h-8 text-xs bg-background/80"
                     min={200}
                     step={100}
                   />
-                  <span className="text-xs text-gray-400">ms</span>
+                  <span className="text-xs text-muted-foreground">ms</span>
                 </div>
               </div>
 
@@ -1583,7 +1560,7 @@ export default function App() {
                 <Button
                   onClick={clearForm}
                   variant="ghost"
-                  className="text-xs text-gray-400 hover:text-white"
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   Clear Form
                 </Button>
@@ -1599,50 +1576,48 @@ export default function App() {
             </div>
           </TabsContent>
 
-          <TabsContent value="manager" className="space-y-6">
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+          <TabsContent value="edit" className="space-y-4 mt-4">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader>
-                <CardTitle className="text-base text-white flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-indigo-400" /> Webhook Inspector & Modifier
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Sliders className="w-4 h-4" /> Edit Webhook
                 </CardTitle>
                 <CardDescription>
-                  Inspect details, modify avatar/name, or permanently delete the webhook via Discord API.
+                  Modify the webhook's settings
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-url" className="text-xs text-gray-300">
-                    Webhook URL
-                  </Label>
+                  <Label htmlFor="edit-url">Webhook URL</Label>
                   <div className="flex gap-2">
                     <Input
                       id="edit-url"
                       placeholder="https://discord.com/api/webhooks/..."
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
-                      className="bg-[#0b0c14] border-white/10 text-white placeholder:text-gray-600"
+                      className="bg-background/80"
                     />
                     <Button
                       onClick={handleFetchEditInfo}
                       disabled={isLoadingEdit}
                       variant="secondary"
-                      className="flex items-center gap-1.5 shrink-0 bg-[#1e2030] hover:bg-[#282a40] text-white"
+                      className="flex items-center gap-1.5 shrink-0"
                     >
                       <RefreshCw
                         className={`w-3.5 h-3.5 ${
                           isLoadingEdit ? "animate-spin" : ""
                         }`}
                       />
-                      Inspect
+                      Fetch Details
                     </Button>
                   </div>
                 </div>
 
                 {editInfo && (
-                  <div className="p-4 bg-[#0b0c14] rounded-xl border border-white/5 space-y-4">
+                  <div className="p-4 bg-muted/40 rounded-lg border border-border space-y-4">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 rounded-full overflow-hidden bg-[#1a1c2b] flex items-center justify-center shrink-0 border border-white/10">
+                        <div className="w-14 h-14 rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
                           {editInfo.avatar ? (
                             <img
                               src={`https://cdn.discordapp.com/avatars/${editInfo.id}/${editInfo.avatar}.webp?size=128`}
@@ -1650,16 +1625,16 @@ export default function App() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="text-xs font-bold text-gray-500">
+                            <span className="text-xs font-bold text-muted-foreground">
                               No Avatar
                             </span>
                           )}
                         </div>
                         <div>
-                          <h3 className="font-semibold text-base text-white">
-                            {editInfo.name || "Default Webhook"}
+                          <h3 className="font-semibold text-base text-foreground">
+                            {editInfo.name || "Unnamed Webhook"}
                           </h3>
-                          <p className="text-xs text-gray-500 font-mono">
+                          <p className="text-xs text-muted-foreground font-mono">
                             ID: {editInfo.id}
                           </p>
                         </div>
@@ -1671,12 +1646,12 @@ export default function App() {
                           variant="outline"
                           onClick={() => {
                             setWebhookUrl(editUrl);
-                            setActiveTab("composer");
-                            toast.success("Loaded into Composer");
+                            setActiveTab("message");
+                            toast.success("Loaded into Message composer");
                           }}
-                          className="text-xs border-white/10"
+                          className="text-xs"
                         >
-                          Use in Composer
+                          Use in Message
                         </Button>
                         <Button
                           size="sm"
@@ -1690,19 +1665,19 @@ export default function App() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="p-3 bg-[#11131f] rounded-lg border border-white/5 flex justify-between items-center">
-                        <span className="text-gray-400">Channel ID:</span>
+                      <div className="p-2.5 bg-background/60 rounded border border-border flex justify-between items-center">
+                        <span className="text-muted-foreground">Channel ID:</span>
                         <code
-                          className="cursor-pointer hover:underline font-mono text-indigo-400"
+                          className="cursor-pointer hover:underline font-mono"
                           onClick={() => copyToClipboard(editInfo.channel_id)}
                         >
                           {editInfo.channel_id}
                         </code>
                       </div>
-                      <div className="p-3 bg-[#11131f] rounded-lg border border-white/5 flex justify-between items-center">
-                        <span className="text-gray-400">Guild ID:</span>
+                      <div className="p-2.5 bg-background/60 rounded border border-border flex justify-between items-center">
+                        <span className="text-muted-foreground">Guild ID:</span>
                         <code
-                          className="cursor-pointer hover:underline font-mono text-indigo-400"
+                          className="cursor-pointer hover:underline font-mono"
                           onClick={() => copyToClipboard(editInfo.guild_id)}
                         >
                           {editInfo.guild_id}
@@ -1710,27 +1685,25 @@ export default function App() {
                       </div>
                     </div>
 
-                    <Separator className="bg-white/5" />
+                    <Separator />
 
                     <div className="space-y-3">
-                      <h4 className="font-semibold text-sm text-white">
-                        Modify Webhook Settings
+                      <h4 className="font-semibold text-sm">
+                        Update Webhook Attributes
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <Label htmlFor="new-webhook-name" className="text-xs text-gray-300">
-                            New Default Name
-                          </Label>
+                          <Label htmlFor="new-webhook-name">New Name</Label>
                           <Input
                             id="new-webhook-name"
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
                             placeholder="Updated Bot Name"
-                            className="bg-[#11131f] border-white/10 text-white"
+                            className="bg-background/80"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label htmlFor="new-avatar-file" className="text-xs text-gray-300">
+                          <Label htmlFor="new-avatar-file">
                             Upload Avatar Image
                           </Label>
                           <Input
@@ -1738,7 +1711,7 @@ export default function App() {
                             type="file"
                             accept="image/*"
                             onChange={handleEditAvatarFile}
-                            className="bg-[#11131f] border-white/10 text-white cursor-pointer"
+                            className="bg-background/80 cursor-pointer"
                           />
                         </div>
                       </div>
@@ -1747,10 +1720,10 @@ export default function App() {
                         <Button
                           onClick={handleSaveEdit}
                           disabled={isSavingEdit}
-                          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white"
+                          className="flex items-center gap-1.5"
                         >
                           <Check className="w-4 h-4" />
-                          {isSavingEdit ? "Saving..." : "Apply Changes"}
+                          {isSavingEdit ? "Saving..." : "Save Changes"}
                         </Button>
                       </div>
                     </div>
@@ -1760,40 +1733,36 @@ export default function App() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="webhooks" className="space-y-6">
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+          <TabsContent value="webhooks" className="space-y-4 mt-4">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader>
-                <CardTitle className="text-base text-white flex items-center gap-2">
-                  <Bookmark className="w-4 h-4 text-indigo-400" /> Save a Webhook
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Bookmark className="w-4 h-4" /> Saved Webhooks
                 </CardTitle>
                 <CardDescription>
-                  Store webhooks with readable labels locally in your browser.
+                  Manage your saved Discord webhooks
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="save-name" className="text-xs text-gray-300">
-                      Webhook Label
-                    </Label>
+                    <Label htmlFor="save-name">Webhook Name</Label>
                     <Input
                       id="save-name"
-                      placeholder="My Announcement Channel"
+                      placeholder="My Server Webhook"
                       value={newWebhookName}
                       onChange={(e) => setNewWebhookName(e.target.value)}
-                      className="bg-[#0b0c14] border-white/10 text-white"
+                      className="bg-background/80"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="save-url" className="text-xs text-gray-300">
-                      Webhook URL
-                    </Label>
+                    <Label htmlFor="save-url">Webhook URL</Label>
                     <Input
                       id="save-url"
                       placeholder="https://discord.com/api/webhooks/..."
                       value={newWebhookUrl}
                       onChange={(e) => setNewWebhookUrl(e.target.value)}
-                      className="bg-[#0b0c14] border-white/10 text-white"
+                      className="bg-background/80"
                     />
                   </div>
                 </div>
@@ -1802,7 +1771,7 @@ export default function App() {
                     onClick={() =>
                       saveToSavedWebhooks(newWebhookName, newWebhookUrl)
                     }
-                    className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white"
+                    className="flex items-center gap-1.5"
                   >
                     <Plus className="w-4 h-4" /> Save Webhook
                   </Button>
@@ -1810,16 +1779,16 @@ export default function App() {
               </CardContent>
             </Card>
 
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader>
-                <CardTitle className="text-base text-white">Saved Webhooks Library</CardTitle>
+                <CardTitle className="text-base">Your Saved Webhooks</CardTitle>
                 <CardDescription>
-                  Saved in your browser localStorage.
+                  Manage and quickly load your stored webhooks
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {savedWebhooks.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-6">
+                  <p className="text-sm text-muted-foreground text-center py-6">
                     No webhooks saved yet. Add one above.
                   </p>
                 ) : (
@@ -1827,13 +1796,13 @@ export default function App() {
                     {savedWebhooks.map((item) => (
                       <div
                         key={item.id}
-                        className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-[#0b0c14] border border-white/5"
+                        className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-card/50 border border-border"
                       >
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-semibold text-sm text-white truncate">
+                          <h4 className="font-semibold text-sm text-foreground truncate">
                             {item.name}
                           </h4>
-                          <p className="text-xs text-gray-500 truncate font-mono">
+                          <p className="text-xs text-muted-foreground truncate font-mono">
                             {item.url}
                           </p>
                         </div>
@@ -1841,10 +1810,10 @@ export default function App() {
                           <Button
                             size="sm"
                             variant="secondary"
-                            className="h-8 text-xs bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30 flex items-center gap-1"
+                            className="h-8 text-xs flex items-center gap-1"
                             onClick={() => {
                               setWebhookUrl(item.url);
-                              setActiveTab("composer");
+                              setActiveTab("message");
                               toast.success(`Selected "${item.name}"`);
                             }}
                           >
@@ -1853,7 +1822,7 @@ export default function App() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="h-8 w-8 border-white/10"
+                            className="h-8 w-8"
                             onClick={() => copyToClipboard(item.url)}
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -1861,7 +1830,7 @@ export default function App() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-gray-500 hover:text-rose-400"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
                             onClick={() => removeSavedWebhook(item.id)}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1875,16 +1844,16 @@ export default function App() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-6">
-            <Card className="bg-[#11131f]/80 border-white/10 shadow-xl">
+          <TabsContent value="history" className="space-y-4 mt-4">
+            <Card className="backdrop-blur-3xl bg-background/10 border-border">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base text-white flex items-center gap-2">
-                      <History className="w-4 h-4 text-indigo-400" /> Transmission History
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <History className="w-4 h-4" /> Webhook History
                     </CardTitle>
                     <CardDescription>
-                      Review the last 50 sent payloads and re-send with one click.
+                      Your previously sent webhook messages
                     </CardDescription>
                   </div>
                   {history.length > 0 && (
@@ -1901,35 +1870,35 @@ export default function App() {
               </CardHeader>
               <CardContent>
                 {history.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-6">
-                    No transmission history yet. Sent webhook messages will appear here.
+                  <p className="text-sm text-muted-foreground text-center py-6">
+                    No webhook history yet. Send a message to see it here.
                   </p>
                 ) : (
                   <div className="space-y-3">
                     {history.map((item) => (
                       <div
                         key={item.id}
-                        className="p-3.5 rounded-xl bg-[#0b0c14] border border-white/5 space-y-2 text-xs"
+                        className="p-3.5 rounded-lg bg-card/50 border border-border space-y-2 text-xs"
                       >
-                        <div className="flex items-center justify-between text-gray-400">
-                          <span className="font-mono text-[11px]">
+                        <div className="flex items-center justify-between text-muted-foreground">
+                          <span className="font-mono">
                             {new Date(item.timestamp).toLocaleString("en-US", {
                               dateStyle: "short",
                               timeStyle: "medium",
                             })}
                           </span>
-                          <span className="font-mono text-[11px] truncate max-w-[200px]">
+                          <span className="font-mono truncate max-w-[200px]">
                             {item.webhookUrl}
                           </span>
                         </div>
-                        <div className="p-2.5 bg-[#11131f] rounded-lg font-mono text-[11px] overflow-x-auto max-h-24 text-gray-300 border border-white/5">
+                        <div className="p-2 bg-background/80 rounded font-mono text-[11px] overflow-x-auto max-h-24">
                           {JSON.stringify(item.payload, null, 2)}
                         </div>
                         <div className="flex items-center justify-end gap-2 pt-1">
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-7 text-xs border-white/10 flex items-center gap-1"
+                            className="h-7 text-xs flex items-center gap-1"
                             onClick={() =>
                               copyToClipboard(
                                 JSON.stringify(item.payload, null, 2)
@@ -1941,7 +1910,7 @@ export default function App() {
                           <Button
                             size="sm"
                             variant="secondary"
-                            className="h-7 text-xs bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30 flex items-center gap-1"
+                            className="h-7 text-xs flex items-center gap-1"
                             onClick={async () => {
                               try {
                                 await executeSend(
@@ -1969,7 +1938,7 @@ export default function App() {
             </Card>
           </TabsContent>
         </Tabs>
-      </main>
+      </div>
 
       <footer className="mt-12 py-4 border-t border-border/40 text-center text-sm text-muted-foreground">
         Made by illusionTBA
