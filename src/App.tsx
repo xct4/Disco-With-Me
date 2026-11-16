@@ -61,6 +61,8 @@ export default function App() {
   const [webhookUrl, setWebhookUrl] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [avatarUrl, setAvatarUrl] = React.useState("");
+  const [avatarFileName, setAvatarFileName] = React.useState("");
+  const [avatarBase64, setAvatarBase64] = React.useState("");
   const [threadId, setThreadId] = React.useState("");
   const [content, setContent] = React.useState("");
   const [tts, setTts] = React.useState(false);
@@ -137,12 +139,20 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === "string") {
-        setAvatarUrl(reader.result);
-        toast.success("Avatar image loaded locally");
+        setAvatarBase64(reader.result);
+        setAvatarFileName(file.name);
+        setAvatarUrl("");
+        toast.success(`Loaded avatar: ${file.name}`);
       }
     };
     reader.readAsDataURL(file);
     e.target.value = "";
+  };
+
+  const clearAvatar = () => {
+    setAvatarUrl("");
+    setAvatarFileName("");
+    setAvatarBase64("");
   };
 
   const handleImportTextContent = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,7 +234,9 @@ export default function App() {
     const payload: Record<string, unknown> = {};
 
     if (username.trim()) payload.username = username.trim();
-    if (avatarUrl.trim()) payload.avatar_url = avatarUrl.trim();
+    if (avatarUrl.trim() && !avatarBase64 && avatarUrl.length <= 2048) {
+      payload.avatar_url = avatarUrl.trim();
+    }
     if (content.trim()) payload.content = content;
     if (tts) payload.tts = true;
 
@@ -311,6 +323,18 @@ export default function App() {
   };
 
   const executeSend = async (targetUrl: string, customPayload?: Record<string, unknown>) => {
+    if (avatarBase64 && isValidUrl(targetUrl)) {
+      try {
+        await fetch(targetUrl.trim(), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ avatar: avatarBase64 }),
+        });
+      } catch {
+        toast.error("Failed to patch webhook avatar");
+      }
+    }
+
     const payload = customPayload || buildPayload();
 
     const hasContent = Boolean(payload.content);
@@ -613,6 +637,8 @@ export default function App() {
     setContent("");
     setUsername("");
     setAvatarUrl("");
+    setAvatarFileName("");
+    setAvatarBase64("");
     setThreadId("");
     setFiles([]);
     setEmbeds([]);
@@ -638,6 +664,9 @@ export default function App() {
   };
 
   const currentEmbed = embeds[activeEmbedIdx];
+
+  const displayedAvatarValue = avatarFileName ? avatarFileName : avatarUrl;
+  const previewAvatarSource = avatarBase64 || avatarUrl;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-between relative overflow-x-hidden">
@@ -754,10 +783,10 @@ export default function App() {
                   <div className="space-y-1.5 flex flex-col justify-end">
                     <div className="h-5 flex items-center justify-between text-xs">
                       <Label htmlFor="avatar-url">Avatar (URL or File)</Label>
-                      {avatarUrl && (
+                      {(avatarFileName || avatarUrl) && (
                         <button
                           type="button"
-                          onClick={() => setAvatarUrl("")}
+                          onClick={clearAvatar}
                           className="text-[10px] text-destructive hover:underline"
                         >
                           Clear
@@ -768,9 +797,13 @@ export default function App() {
                       <Input
                         id="avatar-url"
                         placeholder="https://example.com/avatar.png"
-                        value={avatarUrl.startsWith("data:") ? "[Local Image File]" : avatarUrl}
-                        onChange={(e) => setAvatarUrl(e.target.value)}
-                        className="bg-background/80 h-9 text-xs flex-1"
+                        value={displayedAvatarValue}
+                        onChange={(e) => {
+                          setAvatarFileName("");
+                          setAvatarBase64("");
+                          setAvatarUrl(e.target.value);
+                        }}
+                        className="bg-background/80 h-9 text-xs flex-1 truncate"
                       />
                       <Button
                         type="button"
@@ -1504,7 +1537,7 @@ export default function App() {
               <CardContent>
                 <DiscordPreview
                   username={username}
-                  avatarUrl={avatarUrl}
+                  avatarUrl={previewAvatarSource}
                   content={content}
                   embeds={embeds}
                   poll={poll}
