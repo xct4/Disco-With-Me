@@ -1974,7 +1974,16 @@ export default function App() {
       </div>
 
       <footer className="mt-12 py-4 border-t border-border/40 text-center text-sm text-muted-foreground">
-        Made by illusionTBA
+        Made by{" "}
+        <a
+          href="https://github.com/Uncover-it"
+          target="_blank"
+          rel="noreferrer"
+          className="underline hover:text-foreground"
+        >
+          uncoverit
+        </a>{" "}
+        and customized by xct4
       </footer>
 
       <Toaster richColors position="top-right" />
