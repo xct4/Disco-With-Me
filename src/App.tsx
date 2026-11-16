@@ -381,7 +381,18 @@ export default function App() {
 
     if (!response.ok) {
       const errText = await response.text().catch(() => "");
-      throw new Error(`Failed with status ${response.status}: ${errText.slice(0, 100)}`);
+      let formatted = errText;
+      try {
+        const json = JSON.parse(errText);
+        if (json.message) {
+          formatted = json.message;
+        } else if (json.poll) {
+          formatted = Array.isArray(json.poll) ? json.poll.join(" ") : String(json.poll);
+        }
+      } catch {
+        formatted = errText.slice(0, 150);
+      }
+      throw new Error(`Failed with status ${response.status}: ${formatted}`);
     }
 
     return payload;
@@ -395,6 +406,22 @@ export default function App() {
     if (!isValidUrl(webhookUrl)) {
       toast.error("Invalid Discord webhook URL format");
       return;
+    }
+
+    if (poll.enabled) {
+      if (files.length > 0) {
+        toast.error("Discord cannot send file attachments and polls together");
+        return;
+      }
+      if (!poll.question.trim()) {
+        toast.error("Poll question cannot be empty");
+        return;
+      }
+      const validAnswers = poll.answers.filter((a) => a.text.trim());
+      if (validAnswers.length < 2) {
+        toast.error("Poll must have at least 2 answers");
+        return;
+      }
     }
 
     setIsSending(true);
@@ -415,6 +442,22 @@ export default function App() {
     if (!webhookUrl.trim() || !isValidUrl(webhookUrl)) {
       toast.error("Valid Webhook URL is required to spam");
       return;
+    }
+
+    if (poll.enabled) {
+      if (files.length > 0) {
+        toast.error("Discord cannot send file attachments and polls together");
+        return;
+      }
+      if (!poll.question.trim()) {
+        toast.error("Poll question cannot be empty");
+        return;
+      }
+      const validAnswers = poll.answers.filter((a) => a.text.trim());
+      if (validAnswers.length < 2) {
+        toast.error("Poll must have at least 2 answers");
+        return;
+      }
     }
 
     setIsSpamming(true);
