@@ -1,24 +1,43 @@
-# Discord Webhook Multi-Tool
+This is a [Vite](https://vite.dev) + [React](https://react.dev) project.
 
-Client-side multi-tool for Discord webhooks. Personalize, send messages, build embeds, inspect, and manage Discord webhooks directly from the browser.
+# Self-hosting
+First, clone the repository:
 
-## Features
+```bash
+git clone https://github.com/xct4/Disco-With-Me && cd Disco-With-Me
+```
 
-- **Direct Client Execution**: All requests are dispatched directly from the browser to Discord's API. No intermediate backend server, external proxy, or telemetry database.
-- **Message Dispatcher**: Plain text, markdown formatting shortcuts, mentions, file attachments, and rate-limit backoff.
-- **Embed Builder**: Multi-embed support (up to 10), custom colors, author headers, inline field grids, media thumbnails/images, and footer timestamps.
-- **Native Polls**: Create and preview single or multi-select native Discord polls with configurable duration.
-- **Real-Time Preview**: Live visual representation replicating the Discord desktop client UI.
-- **Webhook Management**: Inspect details (guild, channel, ID) and patch webhook attributes (name, base64 avatar).
-- **Local Persistence**: Save frequently used webhooks and review the last 50 transmissions via browser localStorage.
+Then, install all dependencies:
 
-## Deployment
+```bash
+bun install
+```
 
-### Vercel
+## Running the development server (if you are editing the source code and want to see the changes real-time)
 
-Push the repository to GitHub and import it into Vercel.
+```bash
+bun run dev
+```
 
-- **Framework Preset**: Vite
-- **Build Command**: `vite build`
-- **Output Directory**: `dist`
-- **Install Command**: `bun install` or `npm install`
+## Production Build (if you want to publish the site)
+
+Building:
+```bash
+bun run build
+```
+
+Previewing:
+```bash
+bun run preview
+```
+
+# Deploy to Vercel
+
+1. Connect your GitHub repository to [Vercel](https://vercel.com).
+2. The framework preset is automatically detected as **Vite** via `vercel.json`.
+3. Click **Deploy**.
+
+## Similar Projects
+
+- [webhook-multitool](https://github.com/Uncover-it/webhook-multitool) by [Uncover-it](https://github.com/Uncover-it)
+- [discowithme](https://github.com/illusionTBA/discowithme) by [illusionTBA](https://github.com/illusionTBA)
