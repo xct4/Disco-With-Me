@@ -10,6 +10,18 @@ interface DiscordPreviewProps {
   files?: File[];
 }
 
+interface InviteData {
+  code: string;
+  guild?: {
+    id: string;
+    name: string;
+    icon: string | null;
+    description: string | null;
+  };
+  approximate_member_count?: number;
+  approximate_presence_count?: number;
+}
+
 function parseMarkdown(text: string): React.ReactNode[] {
   if (!text) return [];
   const lines = text.split("\n");
@@ -338,15 +350,69 @@ function PollPreviewCard({ poll }: { poll: PollConfig }) {
   );
 }
 
+function InvitePreviewCard({ invite }: { invite: InviteData }) {
+  const guild = invite.guild;
+  const guildName = guild?.name || `Discord Server (${invite.code})`;
+  const iconUrl =
+    guild && guild.icon
+      ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128`
+      : null;
+
+  return (
+    <div className="bg-[#2b2d31] rounded-lg p-3.5 max-w-[432px] border border-[#1e1f22] my-2 select-none shadow-sm">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-[#949ba4] mb-2.5">
+        You have been invited to join a server
+      </div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-12 h-12 rounded-2xl overflow-hidden bg-[#1e1f22] shrink-0 border border-[#35373c] flex items-center justify-center font-bold text-xs text-[#dbdee1]">
+            {iconUrl ? (
+              <img src={iconUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              guildName.slice(0, 3).toUpperCase()
+            )}
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-semibold text-sm text-white truncate leading-tight">
+              {guildName}
+            </h4>
+            <div className="flex items-center gap-3 text-xs text-[#949ba4] mt-1">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#23a55a] shrink-0" />
+                <span>
+                  {(invite.approximate_presence_count ?? 1).toLocaleString()} Online
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#80848e] shrink-0" />
+                <span>
+                  {(invite.approximate_member_count ?? 1).toLocaleString()} Members
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled
+          className="bg-[#248046] text-white text-xs font-semibold px-4 py-2 rounded-[3px] opacity-90 cursor-default shrink-0"
+        >
+          Join
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function DiscordPreview({
   username,
   avatarUrl,
-  content,
+  content = "",
   embeds = [],
   poll,
   files = [],
 }: DiscordPreviewProps) {
-  const displayName = username && username.trim().length > 0 ? username : "Disco Bot";
+  const displayName = username && username.trim().length > 0 ? username : "Disco With Me";
   const displayAvatar =
     avatarUrl && avatarUrl.trim().length > 0
       ? avatarUrl
@@ -357,8 +423,58 @@ export function DiscordPreview({
     minute: "2-digit",
   });
 
+  const [invites, setInvites] = React.useState<Record<string, InviteData>>({});
+
+  React.useEffect(() => {
+    if (!content) return;
+    const inviteRegex =
+      /(?:https?:\/\/)?(?:www\.)?(?:discord\.(?:gg|io|me|li)|discord(?:app)?\.com\/invite)\/([a-zA-Z0-9-]+)/gi;
+    const matches = Array.from(content.matchAll(inviteRegex));
+    const codes = Array.from(new Set(matches.map((m) => m[1])));
+
+    codes.forEach((code) => {
+      if (invites[code]) return;
+      fetch(`https://discord.com/api/v10/invites/${code}?with_counts=true`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Invite fetch failed");
+          return res.json();
+        })
+        .then((data: InviteData) => {
+          setInvites((prev) => ({
+            ...prev,
+            [code]: { ...data, code },
+          }));
+        })
+        .catch(() => {
+          setInvites((prev) => ({
+            ...prev,
+            [code]: {
+              code,
+              guild: {
+                id: "unknown",
+                name: `discord.gg/${code}`,
+                icon: null,
+                description: null,
+              },
+              approximate_member_count: 0,
+              approximate_presence_count: 0,
+            },
+          }));
+        });
+    });
+  }, [content, invites]);
+
+  const activeInvites = React.useMemo(() => {
+    if (!content) return [];
+    const inviteRegex =
+      /(?:https?:\/\/)?(?:www\.)?(?:discord\.(?:gg|io|me|li)|discord(?:app)?\.com\/invite)\/([a-zA-Z0-9-]+)/gi;
+    const matches = Array.from(content.matchAll(inviteRegex));
+    const codes = Array.from(new Set(matches.map((m) => m[1])));
+    return codes.map((c) => invites[c]).filter(Boolean);
+  }, [content, invites]);
+
   return (
-    <div className="bg-[#313338] text-white rounded-lg p-4 font-sans select-none min-h-[140px] border border-[#232428]">
+    <div className="bg-[#313338] text-white rounded-lg p-4 font-sans select-none min-h-[140px] border border-[#232428] shadow-inner">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-full overflow-hidden bg-[#5865F2] shrink-0">
           <img
@@ -387,6 +503,14 @@ export function DiscordPreview({
 
           {content && content.trim().length > 0 && (
             <div className="mb-2 break-words">{parseMarkdown(content)}</div>
+          )}
+
+          {activeInvites.length > 0 && (
+            <div className="space-y-2 mb-2">
+              {activeInvites.map((inv) => (
+                <InvitePreviewCard key={inv.code} invite={inv} />
+              ))}
+            </div>
           )}
 
           {files.length > 0 && (
